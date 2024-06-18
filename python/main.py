@@ -199,8 +199,8 @@ def modify_sub_domain(modify_params):
 if __name__ == '__main__':
 
     for domain in domains:
-        fullchain_path = f'/acme.sh/{domain.get("domain")}_ecc/fullchain.cer'
-        privkey_path = f'/acme.sh/{domain.get("domain")}_ecc/{domain.get("domain")}.key'
+        fullchain_path = f'/acme.sh/{domain.get("domain")}/fullchain.cer'
+        privkey_path = f'/acme.sh/{domain.get("domain")}/{domain.get("domain")}.key'
 
         # 判断ssl文件生成时间是否更新
         if os.path.exists(fullchain_path) and os.path.exists(privkey_path):
@@ -230,11 +230,11 @@ if __name__ == '__main__':
         # print(privkey)
         if domain.get("type") == 'file':
             # 目录
-            if not os.path.exists(f'/python/ssl/{domain.get("domain")}_ecc'):
-                os.makedirs(f'/python/ssl/{domain.get("domain")}_ecc')
+            if not os.path.exists(f'/python/ssl/{domain.get("domain")}'):
+                os.makedirs(f'/python/ssl/{domain.get("domain")}')
 
-            target_fullchain_path = f'/python/ssl/{domain.get("domain")}_ecc/fullchain.cer'
-            target_privkey_path = f'/python/ssl/{domain.get("domain")}_ecc/{domain.get("domain")}.key'
+            target_fullchain_path = f'/python/ssl/{domain.get("domain")}/fullchain.cer'
+            target_privkey_path = f'/python/ssl/{domain.get("domain")}/{domain.get("domain")}.key'
             # 复制文件到指定目录
             with open(target_fullchain_path, 'w') as f:
                 f.write(fullchain)
