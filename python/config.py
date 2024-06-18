@@ -9,5 +9,9 @@ domains = [
     # {
     #     'type': 'cdn',
     #     'domain': 'xxx.abc.com'
+    # },
+    # {
+    #     'type': 'file',
+    #     'domain': 'xxx.abc.com'
     # }
 ]

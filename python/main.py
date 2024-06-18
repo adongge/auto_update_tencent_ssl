@@ -228,42 +228,54 @@ if __name__ == '__main__':
         # 证书和私钥
         # print(fullchain)
         # print(privkey)
+        if domain.get("type") == 'file':
+            # 目录
+            if not os.path.exists(f'/python/ssl/{domain.get("domain")}_ecc'):
+                os.makedirs(f'/python/ssl/{domain.get("domain")}_ecc')
 
-        old_ssl = get_ssl(domain.get("domain"))
-        
-        data = None
-        # 上传证书
-        # {"CertificateId": "EgkQqUr3", "RepeatCertId": "", "RequestId": "b7e7d9a4-e6fb-4d6a-a228-e521bbe7a669"}
-        data = upload_ssl(fullchain, privkey)
-        if data:
-            CertificateId = data.get('CertificateId')
-            if CertificateId is not None:
-                print(f'Uploaded SSL certificate for {domain.get("domain")}')
-                print(f'new CertificateId: {CertificateId}')
-                
-                # 部署证书到指定实例资源 cdn 或 apigateway
-                # cdn
-                if domain.get("type") == 'cdn':
-                    deploy_ssl_cdn(CertificateId, [domain.get("domain")])
+            target_fullchain_path = f'/python/ssl/{domain.get("domain")}_ecc/fullchain.cer'
+            target_privkey_path = f'/python/ssl/{domain.get("domain")}_ecc/{domain.get("domain")}.key'
+            # 复制文件到指定目录
+            with open(target_fullchain_path, 'w') as f:
+                f.write(fullchain)
+            with open(target_privkey_path, 'w') as f:
+                f.write(privkey)
 
-                # apigateway
-                if domain.get("type") == 'apigateway':
-                    modify_params = {
-                        "ServiceId": domain.get("service_id"),
-                        "SubDomain": domain.get("domain"),
-                        "Protocol": "http&https",
-                        "NetType": "OUTER",
-                        "IsDefaultMapping": True,
-                        "CertificateId": CertificateId
-                    }
+        if domain.get("type") != 'file':
+            old_ssl = get_ssl(domain.get("domain"))
+            data = None
+            # 上传证书
+            # {"CertificateId": "EgkQqUr3", "RepeatCertId": "", "RequestId": "b7e7d9a4-e6fb-4d6a-a228-e521bbe7a669"}
+            data = upload_ssl(fullchain, privkey)
+            if data:
+                CertificateId = data.get('CertificateId')
+                if CertificateId is not None:
+                    print(f'Uploaded SSL certificate for {domain.get("domain")}')
+                    print(f'new CertificateId: {CertificateId}')
+                    
+                    # 部署证书到指定实例资源 cdn 或 apigateway
+                    # cdn
+                    if domain.get("type") == 'cdn':
+                        deploy_ssl_cdn(CertificateId, [domain.get("domain")])
 
-                    modify_sub_domain(modify_params)
+                    # apigateway
+                    if domain.get("type") == 'apigateway':
+                        modify_params = {
+                            "ServiceId": domain.get("service_id"),
+                            "SubDomain": domain.get("domain"),
+                            "Protocol": "http&https",
+                            "NetType": "OUTER",
+                            "IsDefaultMapping": True,
+                            "CertificateId": CertificateId
+                        }
 
-                if domain.get("type") in ['apigateway', 'cdn']:
-                    if old_ssl is not None and len(old_ssl.get('Certificates')) > 0:
-                        print(['old delete', old_ssl.get('Certificates')[0].get('CertificateId')])
-                        old_certificate_id = old_ssl.get('Certificates')[0].get('CertificateId')
-                        del_ssl(old_certificate_id)
+                        modify_sub_domain(modify_params)
+
+                    if domain.get("type") in ['apigateway', 'cdn']:
+                        if old_ssl is not None and len(old_ssl.get('Certificates')) > 0:
+                            print(['old delete', old_ssl.get('Certificates')[0].get('CertificateId')])
+                            old_certificate_id = old_ssl.get('Certificates')[0].get('CertificateId')
+                            del_ssl(old_certificate_id)
 
 
-        print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} end =============================================== {domain.get("domain")}')
+        print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} end =============================================== {domain.get("domain")}\n')
