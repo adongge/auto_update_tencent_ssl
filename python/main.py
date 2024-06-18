@@ -240,6 +240,8 @@ if __name__ == '__main__':
                 f.write(fullchain)
             with open(target_privkey_path, 'w') as f:
                 f.write(privkey)
+                
+            print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} copy file success {domain.get("domain")}\n')
 
         if domain.get("type") != 'file':
             old_ssl = get_ssl(domain.get("domain"))
